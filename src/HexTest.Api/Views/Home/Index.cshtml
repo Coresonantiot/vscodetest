@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Clean DDD Architecture Sample";
+}
+<div class="row">    
+    <div class="col-md-4">
+        <h3>APIs</h3> Shows both Controller and Endpoint APIs.
+        <ul>
+            <li><a href="/swagger">API Documentation (Swagger)</a></li>
+        </ul>
+        <h3>Views</h3>
+        <ul>
+           <li><a asp-controller="Home" asp-action="Index">Home</a></li>            
+        </ul>
+        <h3>Process</h3>
+        <ul>
+            <li><a asp-area="" asp-controller="DummyProcess" asp-action="Index" asp-route-projectId="1">DummyProcess</a></li>
+        </ul>
+    </div>
+</div>

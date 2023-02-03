@@ -1,0 +1,123 @@
+@using HexTest.WebUI.Models;
+@model slcp_employee_department_map
+
+<form id="create-form" method="post" asp-page="slcp_employee_department_map" asp-route-id="@Model.Id" asp-page-handler="AddOrEdit" onsubmit="return jQueryModalPost(this);">  
+    <p id="ErrorMessage" style="color:red;"></p>
+    
+    <div class="container">
+        <div class="row">
+        <div class="col-sm">
+             <div class='form-group'><label for='recipient-name' class='col-form-label'>Emp Code</label><input type='text' class='form-control' id='fld_slcp_emp_code' autocomplete='off' asp-for="slcp_employee.slcp_emp_code" onkeyup='GetAttributeValues($(this).attr("id"),"slcp_employee","slcp_emp_code");'></div><div class='form-group'><label for='recipient-name' class='col-form-label'>Department Code</label><input type='text' class='form-control' id='fld_slcp_dept_code' autocomplete='off' asp-for="slcp_department.slcp_dept_code" onkeyup='GetAttributeValues($(this).attr("id"),"slcp_department","slcp_dept_code");'></div>
+        </div>
+        <div class="col-sm">
+            <div class='form-group'><label for='recipient-name' class='col-form-label'>Emp Name<span style='color: red'>*</span></label><input type='text' class='form-control validate[required]' id='fld_slcp_name' autocomplete='off' asp-for="slcp_employee.slcp_name" onkeyup='GetAttributeValues($(this).attr("id"),"slcp_employee","slcp_name");'></div><div class='form-group'><label for='recipient-name' class='col-form-label'>Department Name</label><input type='text' class='form-control' id='fld_slcp_dept_name' autocomplete='off' asp-for="slcp_department.slcp_dept_name" onkeyup='GetAttributeValues($(this).attr("id"),"slcp_department","slcp_dept_name");'></div>
+        </div>  
+        
+        <input type='hidden' class='form-control' id='fld_PKIDslcp_employee' asp-for="slcp_employeeId"><input type='hidden' class='form-control' id='fld_PKIDslcp_department' asp-for="slcp_departmentId"><input type='hidden' class='form-control' id='fld_PKIDslcp_employee_department_map'>
+        </div>
+
+         
+
+        <br />
+        <div class="form-group justify-content-between" align="right">
+            <button type="button" class="btn btn-secondary close-button" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary save-button">Save</button>
+        </div>
+    </div>
+</form>
+
+
+    <link href="~/vendor/validations/css/validationEngine.jquery.css" rel="stylesheet"/>
+
+    <script src="~/vendor/validations/js/jquery.validationEngine-en.js"></script>
+    <script src="~/vendor/validations/js/jquery.validationEngine.js"></script>
+	<script src="~/vendor/validations/js/custom_validations.js"></script>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
+    <script type="text/javascript">
+            
+        //<SUB-ENTITY_DATA>
+        
+        $(document).ready(function () {
+
+            $("#create-form").validationEngine('attach', { maxErrorsPerField: 1, promptPosition: "bottomLeft" });
+
+            //<ADD-ROW>
+                     
+        });
+
+        jQueryModalPost = form => {
+            if (!$("#create-form").validationEngine('validate')) {
+				return false;
+			}
+
+
+            var data = new FormData(form);
+               
+            //<POST-SE-DATA>
+
+            try {
+                $.ajax({
+                    type: 'POST',
+                    url: form.action,
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        if (res.isValid) {
+                            $('#form-modal').modal('hide');
+                            location.reload();
+                        }
+                        else{
+                            $('#ErrorMessage').text(" ");
+                            var errors = res.errors;
+                            errors.forEach((element, index, array) => {
+                                $('#ErrorMessage').append(element.propertyName + ":" + element.errorMessage + " <br> ");
+                            });
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err)
+                    }
+                })
+                return false;
+            } catch (ex) {
+                console.log(ex)
+            }
+        }
+
+        //<SE-GET-FUNCTION-PLACEHOLDER>
+        //<SE-EDIT-FUNCTION-PLACEHOLDER>
+        //<SE-REMOVE-FUNCTION-PLACEHOLDER>
+        function GetAttributeValues(id, tablename, fieldname) {
+			$(function () {
+				$('#' + id).autocomplete({
+					minLength: 1,
+					appendTo: "#create-form",
+					source: function (request, response) {
+						$.ajax({
+							url: 'slcp_employee_department_map?handler=AttributeData&inputText=' + request.term + '&tablename=' + tablename+ '&fieldname=' + fieldname,
+							success: function (data) {
+									var fields_data = JSON.parse(data);
+									response($.map(fields_data, function (item) {
+										 return { value: item[fieldname], fields_data: item }
+									}))
+							},
+							error: function (XMLHttpRequest, textStatus, errorThrown) {
+							}
+						});
+					},
+					select: function (e, i) {
+						$.map(i.item.fields_data, function (val, i) {
+							$("#fld_" + i).val(val);
+						});
+							$("#fld_PKID" + tablename).val(i.item.fields_data["Id"]);
+					}
+				});
+				});
+			}
+
+
+    </script>
